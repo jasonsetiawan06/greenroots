@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Beranda - GreenRoots{% endblock %}
+
+{% block content %}
+
+<section class="hero">
+    <div class="container hero-content">
+        <div>
+            <p class="eyebrow">HIJAUKAN BUMI, MULAI DARI SEKARANG</p>
+            <h1>Satu Pohon untuk Masa Depan yang Lebih Hijau</h1>
+            <p>
+                Melalui GreenRoots, kamu dapat berkontribusi dalam kegiatan
+                penghijauan dengan membeli bibit pohon. Proses penanaman
+                dilakukan oleh tim GreenRoots.
+            </p>
+
+            <div class="hero-buttons">
+                <a href="/programs" class="btn btn-primary">Lihat Program</a>
+                <a href="/auth" class="btn btn-outline">Mulai Bergabung</a>
+            </div>
+        </div>
+
+        <div class="hero-image">
+            <div class="tree-symbol">🌳</div>
+            <h3>Tanam Kebaikan Hari Ini</h3>
+            <p>Kontribusi kecil untuk lingkungan yang lebih baik.</p>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="section-heading">
+            <p class="eyebrow">TENTANG GREENROOTS</p>
+            <h2>Bagaimana GreenRoots Bekerja?</h2>
+            <p>Kami membantu menghubungkan kontribusi pengguna dengan aksi penghijauan.</p>
+        </div>
+
+        <div class="card-grid">
+            <div class="info-card">
+                <div class="card-icon">01</div>
+                <h3>Pilih Program</h3>
+                <p>Pilih program bibit pohon yang ingin kamu dukung.</p>
+            </div>
+
+            <div class="info-card">
+                <div class="card-icon">02</div>
+                <h3>Lakukan Pembayaran</h3>
+                <p>Selesaikan pesanan melalui metode pembayaran yang tersedia.</p>
+            </div>
+
+            <div class="info-card">
+                <div class="card-icon">03</div>
+                <h3>Pantau Penanaman</h3>
+                <p>Tim GreenRoots melakukan penanaman dan memperbarui informasi progresnya.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="cta-section">
+    <div class="container">
+        <h2>Mulai Kontribusimu untuk Bumi</h2>
+        <p>Bersama-sama kita wujudkan lingkungan yang lebih hijau.</p>
+        <a href="/programs" class="btn btn-light">Lihat Program Penanaman</a>
+    </div>
+</section>
+
+{% endblock %}

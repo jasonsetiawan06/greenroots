@@ -1,0 +1,41 @@
+
+# Virtual Environment
+venv/
+.venv/
+env/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment / Secret Files
+.env
+.env.*
+!.env.example
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE
+.idea/
+.vscode/
+
+# Logs
+*.log
+logs/
+
+# Database backups
+*.sql
+*.dump
+*.backup
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Hasil audit keamanan
+hasil_audit.json
+hasil_semgrep.json

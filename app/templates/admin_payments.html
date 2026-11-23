@@ -1,0 +1,205 @@
+
+{% extends "base.html" %}
+
+{% block title %}Verifikasi Pembayaran - GreenRoots{% endblock %}
+
+{% block content %}
+
+<section class="page-banner">
+    <div class="container">
+        <p class="eyebrow">ADMINISTRATOR</p>
+        <h1>Verifikasi Pembayaran</h1>
+        <p>Periksa bukti pembayaran dan kelola status pembayaran pengguna.</p>
+    </div>
+</section>
+
+<main class="admin-payment-container">
+
+    <div class="admin-payment-heading">
+        <h2>Daftar Pembayaran</h2>
+        <p>Administrator: {{ admin.name }}</p>
+
+        <br>
+
+        <a href="/admin" class="btn btn-outline">
+            Kembali ke Dashboard Admin
+        </a>
+    </div>
+
+    {% if payments %}
+
+        <div class="admin-payment-list">
+
+            {% for payment in payments %}
+
+                <section class="admin-payment-card">
+
+                    <h3>Pembayaran #{{ payment.id }}</h3>
+
+                    <!-- STATUS -->
+                    <div style="margin-bottom: 20px;">
+
+                        {% if payment.status == "paid" %}
+                            <span class="payment-status paid">Lunas</span>
+
+                        {% elif payment.status == "waiting_verification" %}
+                            <span class="payment-status waiting">Menunggu Verifikasi</span>
+
+                        {% elif payment.status == "rejected" %}
+                            <span class="payment-status rejected">Ditolak</span>
+
+                        {% else %}
+                            <span class="payment-status pending">Menunggu Pembayaran</span>
+                        {% endif %}
+
+                    </div>
+
+                    <!-- INFORMASI PEMBAYARAN -->
+                    <div class="admin-payment-info">
+
+                        <p>
+                            Nomor Pesanan:
+                            <strong>#{{ payment.order.id }}</strong>
+                        </p>
+
+                        <p>
+                            Nama Pengguna:
+                            <strong>{{ payment.order.user.name }}</strong>
+                        </p>
+
+                        <p>
+                            Email:
+                            <strong>{{ payment.order.user.email }}</strong>
+                        </p>
+
+                        <p>
+                            Program:
+                            <strong>{{ payment.order.program.name }}</strong>
+                        </p>
+
+                        <p>
+                            Jumlah:
+                            <strong>{{ payment.order.quantity }}</strong>
+                        </p>
+
+                        <p>
+                            Metode:
+                            <strong>
+                                {% if payment.payment_method == "bank_transfer" %}
+                                    Transfer Bank
+                                {% else %}
+                                    QRIS Simulasi
+                                {% endif %}
+                            </strong>
+                        </p>
+
+                        <p>
+                            Total Pembayaran:
+                            <strong>
+                                Rp {{ "{:,.0f}".format(payment.amount) }}
+                            </strong>
+                        </p>
+
+                    </div>
+
+                    <!-- BUKTI PEMBAYARAN -->
+                    <h3>Bukti Pembayaran</h3>
+
+                    {% if payment.proof_path %}
+
+                        <a href="/payments/proof/{{ payment.id }}"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="admin-payment-proof">
+                            Lihat Bukti Pembayaran
+                        </a>
+
+                    {% else %}
+
+                        <p>Bukti pembayaran belum diunggah.</p>
+
+                    {% endif %}
+
+                    {% if payment.rejection_reason %}
+                        <div class="alert">
+                            <strong>Alasan Penolakan:</strong>
+                            <p>{{ payment.rejection_reason }}</p>
+                        </div>
+                    {% endif %}
+
+                    <!-- AKSI ADMIN -->
+                    {% if payment.status == "waiting_verification" %}
+
+                        <div class="admin-payment-actions">
+
+                            <!-- TERIMA -->
+                            <form action="/admin/payments/{{ payment.id }}/approve"
+                                  method="post"
+                                  onsubmit="return confirm('Apakah kamu yakin menerima pembayaran ini?')">
+
+                                <input type="hidden"
+                                       name="csrf_token"
+                                       value="{{ csrf_token }}">
+
+                                <button type="submit" class="btn-approve">
+                                    Terima Pembayaran
+                                </button>
+
+                            </form>
+
+                            <!-- TOLAK -->
+                            <form action="/admin/payments/{{ payment.id }}/reject"
+                                  method="post"
+                                  onsubmit="return confirm('Apakah kamu yakin menolak pembayaran ini?')">
+
+                                <input type="hidden"
+                                       name="csrf_token"
+                                       value="{{ csrf_token }}">
+
+                                <label>Alasan Penolakan</label>
+
+                                <textarea name="rejection_reason"
+                                          maxlength="500"
+                                          placeholder="Masukkan alasan penolakan"
+                                          required></textarea>
+
+                                <button type="submit" class="btn-reject">
+                                    Tolak Pembayaran
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    {% elif payment.status == "paid" %}
+
+                        <p class="payment-status paid">
+                            Pembayaran telah diverifikasi.
+                        </p>
+
+                    {% elif payment.status == "rejected" %}
+
+                        <p class="payment-status rejected">
+                            Pembayaran telah ditolak.
+                        </p>
+
+                    {% endif %}
+
+                </section>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <div class="admin-payment-empty">
+            <h3>Belum Ada Pembayaran</h3>
+            <p>Belum terdapat data pembayaran dari pengguna.</p>
+        </div>
+
+    {% endif %}
+
+</main>
+
+{% endblock %}

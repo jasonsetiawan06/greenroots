@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Masuk - GreenRoots{% endblock %}
+
+{% block content %}
+
+<section class="auth-section">
+    <div class="login-container">
+
+        <div class="auth-heading">
+            <p class="eyebrow">GREENROOTS</p>
+            <h1 id="form-title">Selamat Datang Kembali</h1>
+            <p id="form-description">
+                Masuk ke akunmu untuk melanjutkan kontribusi penghijauan.
+            </p>
+        </div>
+
+        {% if error %}
+            <div class="alert">{{ error }}</div>
+        {% endif %}
+
+        <!-- FORM LOGIN -->
+        <div id="login-form" class="auth-card">
+            <h2>Login</h2>
+            <p>Silakan masukkan email dan password.</p>
+
+            <form action="/login" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+                <label>Email</label>
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="Masukkan email"
+                    maxlength="150"
+                    required
+                >
+
+                <label>Password</label>
+                <input
+                    type="password"
+                    name="password"
+                    placeholder="Masukkan password"
+                    required
+                >
+
+                <button type="submit" class="btn btn-primary btn-full">
+                    Masuk
+                </button>
+            </form>
+
+            <p class="auth-switch">
+                Belum punya akun?
+                <button type="button" onclick="showRegister()">
+                    Daftar sekarang
+                </button>
+            </p>
+        </div>
+
+        <!-- FORM REGISTRASI -->
+        <div id="register-form" class="auth-card" hidden>
+            <h2>Buat Akun</h2>
+            <p>Daftar untuk mulai berkontribusi bersama GreenRoots.</p>
+
+            <form action="/register" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+                <label>Nama Lengkap</label>
+                <input
+                    type="text"
+                    name="name"
+                    placeholder="Masukkan nama lengkap"
+                    maxlength="100"
+                    required
+                >
+
+                <label>Email</label>
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="Masukkan email"
+                    maxlength="150"
+                    required
+                >
+
+                <label>Password</label>
+                <input
+                    type="password"
+                    name="password"
+                    placeholder="Minimal 8 karakter"
+                    minlength="8"
+                    maxlength="128"
+                    required
+                >
+
+                <button type="submit" class="btn btn-primary btn-full">
+                    Daftar
+                </button>
+            </form>
+
+            <p class="auth-switch">
+                Sudah punya akun?
+                <button type="button" onclick="showLogin()">
+                    Masuk sekarang
+                </button>
+            </p>
+        </div>
+
+    </div>
+</section>
+
+<script src="/static/js/auth.js" defer></script>
+{% endblock %}

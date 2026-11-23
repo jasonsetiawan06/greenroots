@@ -1,0 +1,472 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - GreenWeb{% endblock %}
+
+{% block content %}
+
+<!-- HEADER ADMIN -->
+<section class="page-banner">
+    <div class="container">
+        <p class="eyebrow">ADMINISTRATOR</p>
+        <h1>Dashboard Admin</h1>
+        <p>Kelola produk, pesanan, pembayaran, dan kegiatan penanaman GreenWeb.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+
+        <!-- MENU ADMIN -->
+        <div class="admin-section">
+            <h2>Menu Administrator</h2>
+            <p>Pilih menu untuk mengelola aktivitas GreenWeb.</p>
+
+            <div class="admin-stats">
+                <div class="stat-card">
+                    <h3>Produk</h3>
+                    <p>Kelola bibit dan paket penghijauan.</p>
+                    <a href="#produk">Kelola Produk</a>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Pesanan</h3>
+                    <p>Lihat seluruh pesanan pengguna.</p>
+                    <a href="#pesanan">Lihat Pesanan</a>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Pembayaran</h3>
+                    <p>Periksa bukti pembayaran pengguna.</p>
+                    <a href="#pesanan">Verifikasi Pembayaran</a>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Penanaman</h3>
+                    <p>Lihat catatan kegiatan penanaman.</p>
+                    <a href="#penanaman">Kelola Penanaman</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- STATISTIK -->
+        <div class="admin-section">
+            <h2>Statistik GreenWeb</h2>
+
+            <div class="admin-stats">
+                <div class="stat-card">
+                    <h3>{{ users|length }}</h3>
+                    <p>Total Pengguna</p>
+                </div>
+
+                <div class="stat-card">
+                    <h3>{{ orders|length }}</h3>
+                    <p>Total Pesanan</p>
+                </div>
+
+                <div class="stat-card">
+                    <h3>{{ plantings|length }}</h3>
+                    <p>Data Penanaman</p>
+                </div>
+
+                <div class="stat-card">
+                    <h3>{{ products|length }}</h3>
+                    <p>Total Produk</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAMBAH PRODUK -->
+        <div class="admin-section" id="produk">
+            <h2>Manajemen Produk</h2>
+            <p>Tambahkan produk bibit tunggal atau paket penghijauan.</p>
+
+            <div class="auth-card planting-form">
+                <h3>Tambah Produk Baru</h3>
+
+                <form action="/admin/products" method="POST">
+                    <input type="hidden" name="csrf_token"
+                           value="{{ csrf_token }}">
+
+                    <label>Nama Produk</label>
+                    <input type="text" name="name" maxlength="150"
+                           placeholder="Contoh: Bibit Mangga" required>
+
+                    <label>Deskripsi</label>
+                    <textarea name="description" rows="3"
+                              placeholder="Deskripsi produk" required></textarea>
+
+                    <label>Jenis Pohon</label>
+                    <input type="text" name="tree_type" maxlength="100"
+                           placeholder="Contoh: Mangga" required>
+
+                    <label>Tipe Produk</label>
+                    <select name="product_type" required>
+                        <option value="single">Bibit Tunggal</option>
+                        <option value="package">Paket Bibit</option>
+                    </select>
+
+                    <label>Jumlah Pohon per Produk</label>
+                    <input type="number" name="trees_per_unit"
+                           min="1" value="1" required>
+
+                    <small>
+                        Untuk bibit tunggal isi 1. Untuk paket, isi jumlah pohon dalam satu paket.
+                    </small>
+
+                    <label>Harga (Rupiah)</label>
+                    <input type="number" name="price" min="0"
+                           step="0.01" placeholder="Contoh: 15000" required>
+
+                    <label>Stok</label>
+                    <input type="number" name="stock" min="0"
+                           placeholder="Jumlah stok produk" required>
+
+                    <button type="submit" class="btn btn-primary btn-full">
+                        Tambahkan Produk
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- DAFTAR PRODUK -->
+        <div class="admin-section">
+            <h2>Daftar Produk</h2>
+
+            {% if products %}
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nama Produk</th>
+                                <th>Jenis Pohon</th>
+                                <th>Tipe</th>
+                                <th>Pohon per Produk</th>
+                                <th>Harga</th>
+                                <th>Stok</th>
+                                <th>Status</th>
+                                <th>Pengelolaan</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for product in products %}
+                                <tr>
+                                    <td>#{{ product.id }}</td>
+                                    <td>{{ product.name }}</td>
+                                    <td>{{ product.tree_type }}</td>
+                                    <td>
+                                        {% if product.product_type == "package" %}
+                                            Paket
+                                        {% else %}
+                                            Tunggal
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ product.trees_per_unit }}</td>
+                                    <td>Rp {{ "{:,.0f}".format(product.price) }}</td>
+                                    <td>{{ product.stock }}</td>
+                                    <td>
+                                        {% if product.is_active %}
+                                            <span class="status">Aktif</span>
+                                        {% else %}
+                                            <span class="status">Nonaktif</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <details>
+                                            <summary>Edit Produk</summary>
+
+                                            <form action="/admin/products/{{ product.id }}/update"
+                                                  method="POST">
+
+                                                <input type="hidden"
+                                                       name="csrf_token"
+                                                       value="{{ csrf_token }}">
+
+                                                <label>Nama Produk</label>
+                                                <input type="text" name="name"
+                                                       value="{{ product.name }}"
+                                                       maxlength="150" required>
+
+                                                <label>Deskripsi</label>
+                                                <textarea name="description"
+                                                          rows="3" required>{{ product.description }}</textarea>
+
+                                                <label>Jenis Pohon</label>
+                                                <input type="text" name="tree_type"
+                                                       value="{{ product.tree_type }}"
+                                                       maxlength="100" required>
+
+                                                <label>Tipe Produk</label>
+                                                <select name="product_type" required>
+                                                    <option value="single"
+                                                        {% if product.product_type == "single" %}selected{% endif %}>
+                                                        Bibit Tunggal
+                                                    </option>
+
+                                                    <option value="package"
+                                                        {% if product.product_type == "package" %}selected{% endif %}>
+                                                        Paket Bibit
+                                                    </option>
+                                                </select>
+
+                                                <label>Jumlah Pohon per Produk</label>
+                                                <input type="number"
+                                                       name="trees_per_unit"
+                                                       min="1"
+                                                       value="{{ product.trees_per_unit }}"
+                                                       required>
+
+                                                <label>Harga (Rupiah)</label>
+                                                <input type="number" name="price"
+                                                       min="0" step="0.01"
+                                                       value="{{ product.price }}"
+                                                       required>
+
+                                                <label>Stok</label>
+                                                <input type="number" name="stock"
+                                                       min="0"
+                                                       value="{{ product.stock }}"
+                                                       required>
+
+                                                <input type="hidden"
+                                                       name="is_active"
+                                                       value="false">
+
+                                                <label>
+                                                    <input type="checkbox"
+                                                           name="is_active"
+                                                           value="true"
+                                                           {% if product.is_active %}checked{% endif %}>
+                                                    Produk aktif
+                                                </label>
+
+                                                <button type="submit"
+                                                        class="btn btn-primary">
+                                                    Simpan Perubahan
+                                                </button>
+                                            </form>
+                                        </details>
+
+                                        {% if product.is_active %}
+                                            <form action="/admin/products/{{ product.id }}/deactivate"
+                                                  method="POST"
+                                                  onsubmit="return confirm('Nonaktifkan produk ini?')">
+
+                                                <input type="hidden"
+                                                       name="csrf_token"
+                                                       value="{{ csrf_token }}">
+
+                                                <button type="submit" class="btn">
+                                                    Nonaktifkan
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p>Belum ada produk.</p>
+            {% endif %}
+        </div>
+
+        <!-- DATA PESANAN -->
+        <div class="admin-section" id="pesanan">
+            <h2>Data Pesanan</h2>
+
+            {% if orders %}
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Pengguna</th>
+                                <th>Program</th>
+                                <th>Jumlah</th>
+                                <th>Total</th>
+                                <th>Bukti Pembayaran</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for order in orders %}
+                                <tr>
+                                    <td>#{{ order.id }}</td>
+
+                                    <td>{{ order.user.name }}</td>
+
+                                    <td>{{ order.program.name }}</td>
+
+                                    <td>{{ order.quantity }}</td>
+
+                                    <td>
+                                        Rp {{ "{:,.0f}".format(order.total_price) }}
+                                    </td>
+
+                                    <!-- BUKTI PEMBAYARAN -->
+                                    <td>
+                                        {% if order.payment
+                                              and order.payment.proof_path %}
+
+                                            <a
+                                                href="/payments/proof/{{ order.payment.id }}"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                class="btn"
+                                            >
+                                                Lihat Bukti
+                                            </a>
+
+                                        {% else %}
+                                            <span>-</span>
+                                        {% endif %}
+                                    </td>
+
+                                    <!-- STATUS DAN ACC -->
+                                    <td>
+                                        <span class="status">
+                                            {{ order.status }}
+                                        </span>
+
+                                        {% if order.payment
+                                              and order.payment.status == "waiting_verification"
+                                              and order.payment.proof_path %}
+
+                                            <form
+                                                action="/admin/payments/{{ order.payment.id }}/approve"
+                                                method="POST"
+                                                style="margin-top: 8px;"
+                                                onsubmit="return confirm('Yakin ingin menyetujui pembayaran pesanan #{{ order.id }}?')"
+                                            >
+                                                <input
+                                                    type="hidden"
+                                                    name="csrf_token"
+                                                    value="{{ csrf_token }}"
+                                                >
+
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-primary"
+                                                >
+                                                    ACC Pembayaran
+                                                </button>
+                                            </form>
+
+                                        {% elif order.payment
+                                              and order.payment.status == "paid" %}
+
+                                            <span class="status">
+                                                Pembayaran Disetujui
+                                            </span>
+
+                                        {% elif order.payment
+                                              and order.payment.proof_path %}
+
+                                            <span class="status">
+                                                Menunggu Verifikasi
+                                            </span>
+
+                                        {% else %}
+                                            <span class="status">
+                                                Belum Ada Bukti
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p>Belum ada pesanan.</p>
+            {% endif %}
+        </div>
+
+        <!-- FORM PENANAMAN -->
+        <div class="admin-section" id="penanaman">
+            <h2>Catat Penanaman Pohon</h2>
+            <p>Hanya pesanan yang sudah dibayar yang dapat dicatat penanamannya.</p>
+
+            <div class="auth-card planting-form">
+                <form action="/admin/plantings" method="POST">
+                    <input type="hidden" name="csrf_token"
+                           value="{{ csrf_token }}">
+
+                    <label>ID Pesanan</label>
+                    <input type="number" name="order_id" min="1"
+                           placeholder="Masukkan ID pesanan" required>
+
+                    <label>Lokasi Penanaman</label>
+                    <input type="text" name="location" maxlength="255"
+                           placeholder="Contoh: Bogor, Jawa Barat" required>
+
+                    <label>Jumlah Pohon yang Ditanam</label>
+                    <input type="number" name="planted_quantity" min="0"
+                           placeholder="Masukkan jumlah" required>
+
+                    <label>Catatan</label>
+                    <textarea name="notes" rows="3"
+                              placeholder="Catatan kegiatan penanaman"></textarea>
+
+                    <button type="submit" class="btn btn-primary btn-full">
+                        Simpan Data Penanaman
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- RIWAYAT PENANAMAN -->
+        <div class="admin-section">
+            <h2>Riwayat Penanaman</h2>
+
+            {% if plantings %}
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>ID Pesanan</th>
+                                <th>Lokasi</th>
+                                <th>Jumlah Ditanam</th>
+                                <th>Status</th>
+                                <th>Tanggal</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for planting in plantings %}
+                                <tr>
+                                    <td>#{{ planting.id }}</td>
+                                    <td>#{{ planting.order_id }}</td>
+                                    <td>{{ planting.location }}</td>
+                                    <td>{{ planting.planted_quantity }}</td>
+                                    <td>
+                                        <span class="status">
+                                            {{ planting.status }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if planting.planting_date %}
+                                            {{ planting.planting_date.strftime("%d-%m-%Y") }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p>Belum ada data penanaman.</p>
+            {% endif %}
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}

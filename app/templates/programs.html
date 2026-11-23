@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Program Penanaman - GreenRoots{% endblock %}
+
+{% block content %}
+
+<section class="page-banner">
+    <div class="container">
+        <p class="eyebrow">PROGRAM KAMI</p>
+        <h1>Pilih Program Penanaman</h1>
+        <p>Dukung penghijauan melalui program bibit pohon yang tersedia.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+
+        {% if programs %}
+            <div class="program-grid">
+                {% for program in programs %}
+                    <div class="program-card">
+
+                        {% if program.image_path %}
+                            <img
+                                src="{{ program.image_path }}"
+                                alt="{{ program.name }}"
+                                class="program-image">
+                        {% else %}
+                            <div class="program-image">🌱</div>
+                        {% endif %}
+
+                        <div class="program-content">
+                            <h2>{{ program.name }}</h2>
+
+                            <p>{{ program.description }}</p>
+
+                            <div class="program-details">
+                                <span>Jenis: {{ program.tree_type }}</span>
+                                <span>Stok: {{ program.stock }}</span>
+                            </div>
+
+                            <h3 class="price">
+                                Rp {{ "{:,.0f}".format(program.price) }}
+                            </h3>
+
+                            {% if user is defined and user %}
+                                <form action="/orders" method="POST">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                    <input type="hidden" name="program_id" value="{{ program.id }}">
+
+                                    <label>Jumlah Bibit</label>
+                                    <input type="number" name="quantity" min="1" max="1000" value="1" required>
+
+                                    <button type="submit" class="btn btn-primary btn-full"
+                                        {% if program.stock <= 0 %}disabled{% endif %}>
+                                        Pesan Sekarang
+                                    </button>
+                                </form>
+                            {% else %}
+                                <a href="/auth" class="btn btn-primary btn-full">Masuk untuk Memesan</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <h2>Belum Ada Program</h2>
+                <p>Program penanaman belum tersedia saat ini.</p>
+            </div>
+        {% endif %}
+
+    </div>
+</section>
+
+{% endblock %}

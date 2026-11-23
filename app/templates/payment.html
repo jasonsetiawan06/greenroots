@@ -1,0 +1,204 @@
+
+{% extends "base.html" %}
+
+{% block title %}Pembayaran - GreenRoots{% endblock %}
+
+{% block content %}
+
+<section class="page-banner">
+    <div class="container">
+        <p class="eyebrow">GREENROOTS PAYMENT</p>
+        <h1>Pembayaran Pesanan</h1>
+        <p>Selesaikan pembayaran untuk mendukung kegiatan penghijauan.</p>
+    </div>
+</section>
+
+<main class="payment-container">
+
+    <!-- RINGKASAN PESANAN -->
+    <div class="payment-summary">
+        <p>Nomor Pesanan</p>
+        <h3>#{{ order.id }}</h3>
+
+        <p>Total Pembayaran</p>
+        <div class="payment-total">
+            Rp {{ "{:,.0f}".format(order.total_price) }}
+        </div>
+    </div>
+
+    {% if payment %}
+
+        <!-- STATUS PEMBAYARAN -->
+        <div class="payment-card">
+            <h2>Status Pembayaran</h2>
+
+            {% if payment.status == "paid" %}
+                <span class="payment-status paid">Pembayaran Berhasil</span>
+            {% elif payment.status == "waiting_verification" %}
+                <span class="payment-status waiting">Menunggu Verifikasi</span>
+            {% elif payment.status == "rejected" %}
+                <span class="payment-status rejected">Pembayaran Ditolak</span>
+            {% else %}
+                <span class="payment-status pending">Menunggu Pembayaran</span>
+            {% endif %}
+
+            <p style="margin-top: 15px;">
+                Metode:
+                {% if payment.payment_method == "bank_transfer" %}
+                    Transfer Bank
+                {% else %}
+                    QRIS Simulasi
+                {% endif %}
+            </p>
+        </div>
+
+        {% if payment.status == "pending" or payment.status == "rejected" %}
+
+            <!-- INFORMASI PEMBAYARAN -->
+            <div class="payment-card">
+
+                {% if payment.payment_method == "bank_transfer" %}
+
+                    <h2>Transfer Bank</h2>
+                    <p>Silakan lakukan transfer sesuai informasi berikut.</p>
+
+                    <div class="payment-information">
+                        <p>Bank: <strong>BRI</strong></p>
+                        <p>Nomor Rekening: <strong>0000000000</strong></p>
+                        <p>Nama Rekening: <strong>GreenRoots</strong></p>
+                        <p>Nominal: <strong>Rp {{ "{:,.0f}".format(payment.amount) }}</strong></p>
+                    </div>
+
+                    <small>Nomor rekening di atas masih berupa contoh simulasi.</small>
+
+                {% else %}
+
+                    <h2>Pembayaran QRIS</h2>
+                    <p>Metode QRIS saat ini masih berupa simulasi.</p>
+
+                    <div class="payment-information">
+                        <h3>QRIS Simulasi</h3>
+                        <p>Belum tersedia kode QR untuk dipindai.</p>
+                        <p>Nominal: <strong>Rp {{ "{:,.0f}".format(payment.amount) }}</strong></p>
+                    </div>
+
+                {% endif %}
+
+                {% if payment.rejection_reason %}
+                    <div class="alert">
+                        <strong>Alasan Penolakan:</strong>
+                        <p>{{ payment.rejection_reason }}</p>
+                    </div>
+                {% endif %}
+
+                <!-- UPLOAD BUKTI -->
+                <div class="payment-upload">
+                    <h2>Upload Bukti Pembayaran</h2>
+                    <p>Unggah bukti pembayaran dalam format JPG, PNG, atau PDF.</p>
+
+                    <form action="/payment/{{ order.id }}/proof"
+                          method="post"
+                          enctype="multipart/form-data">
+
+                        <input type="hidden"
+                               name="csrf_token"
+                               value="{{ csrf_token }}">
+
+                        <label for="proof">Pilih Bukti Pembayaran</label>
+
+                        <input type="file"
+                               id="proof"
+                               name="proof"
+                               accept=".jpg,.jpeg,.png,.pdf"
+                               required>
+
+                        <small>Ukuran maksimal file adalah 5 MB.</small>
+
+                        <button type="submit" class="btn btn-primary btn-full">
+                            Kirim Bukti Pembayaran
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+
+        {% elif payment.status == "waiting_verification" %}
+
+            <div class="payment-card">
+                <h2>Bukti Pembayaran Terkirim</h2>
+                <p>Bukti pembayaran berhasil dikirim.</p>
+                <p>Admin sedang memeriksa pembayaran kamu.</p>
+                <p>Silakan tunggu hingga proses verifikasi selesai.</p>
+            </div>
+
+        {% elif payment.status == "paid" %}
+
+            <div class="payment-card">
+                <h2>Pembayaran Berhasil</h2>
+                <p>Pembayaran telah diverifikasi oleh admin.</p>
+                <p>Pesanan kamu sudah dinyatakan lunas.</p>
+            </div>
+
+        {% endif %}
+
+    {% else %}
+
+        <!-- PILIH METODE PEMBAYARAN -->
+        <div class="payment-card">
+
+            <h2>Pilih Metode Pembayaran</h2>
+            <p>Pilih metode pembayaran yang ingin digunakan.</p>
+
+            <form action="/payment/{{ order.id }}" method="post">
+
+                <input type="hidden"
+                       name="csrf_token"
+                       value="{{ csrf_token }}">
+
+                <div class="payment-methods">
+
+                    <label class="payment-method">
+                        <input type="radio"
+                               name="payment_method"
+                               value="bank_transfer"
+                               required>
+
+                        <span>
+                            <strong>Transfer Bank</strong>
+                            <small>Transfer melalui rekening bank.</small>
+                        </span>
+                    </label>
+
+                    <label class="payment-method">
+                        <input type="radio"
+                               name="payment_method"
+                               value="qris"
+                               required>
+
+                        <span>
+                            <strong>QRIS Simulasi</strong>
+                            <small>Metode QRIS untuk demonstrasi.</small>
+                        </span>
+                    </label>
+
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full">
+                    Lanjutkan Pembayaran
+                </button>
+
+            </form>
+
+        </div>
+
+    {% endif %}
+
+    <div style="text-align: center; margin-bottom: 40px;">
+        <a href="/dashboard" class="btn btn-outline">
+            Kembali ke Dashboard
+        </a>
+    </div>
+
+</main>
+
+{% endblock %}

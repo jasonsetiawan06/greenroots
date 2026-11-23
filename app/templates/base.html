@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}GreenRoots{% endblock %}</title>
+    <link rel="stylesheet" href="{{ request.url_for('static', path='/style.css') }}">
+</head>
+<body>
+
+<header class="navbar">
+    <div class="container nav-content">
+        <a href="/" class="logo">Green<span>Roots</span></a>
+
+        <nav>
+            <a href="/">Beranda</a>
+            <a href="/programs">Program</a>
+
+            {% if user is defined and user %}
+                <a href="/dashboard">Dashboard</a>
+
+                {% if user.role == "admin" %}
+                    <a href="/admin">Admin</a>
+                {% endif %}
+
+                <form action="/logout" method="POST" class="nav-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <button type="submit" class="nav-logout">Keluar</button>
+                </form>
+            {% else %}
+                <a href="/auth" class="nav-login">Masuk</a>
+            {% endif %}
+        </nav>
+    </div>
+</header>
+
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+<footer>
+    <div class="container">
+        <p>© 2026 GreenRoots. Bersama menjaga kelestarian alam Indonesia.</p>
+    </div>
+</footer>
+
+</body>
+</html>

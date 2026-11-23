@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - GreenRoots{% endblock %}
+
+{% block content %}
+
+<section class="page-banner">
+    <div class="container">
+        <p class="eyebrow">DASHBOARD PENGGUNA</p>
+        <h1>Halo, {{ user.name }}!</h1>
+        <p>Pantau pesanan dan perkembangan kegiatan penanamanmu.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+
+        <div class="dashboard-heading">
+            <div>
+                <h2>Riwayat Pesanan</h2>
+                <p>Daftar seluruh pesanan yang pernah kamu buat.</p>
+            </div>
+
+            <a href="/programs" class="btn btn-primary">Buat Pesanan</a>
+        </div>
+
+        {% if orders %}
+            <div class="table-wrapper history-scroll" style="max-height: 350px; overflow-y: auto; overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID Pesanan</th>
+                            <th>Program</th>
+                            <th>Jumlah</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Tanggal</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>#{{ loop.revindex }}</td>
+                            <td>{{ order.program.name }}</td>
+                            <td>{{ order.quantity }}</td>
+                            <td>Rp {{ "{:,.0f}".format(order.total_price) }}</td>
+                            <td>
+                                <span class="status">{{ order.status }}</span>
+                            </td>
+                            <td>{{ order.created_at.strftime("%d-%m-%Y") }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <h2>Belum Ada Pesanan</h2>
+                <p>Kamu belum memiliki pesanan penanaman pohon.</p>
+                <a href="/programs" class="btn btn-primary">Lihat Program</a>
+            </div>
+        {% endif %}
+
+    </div>
+</section>
+
+{% endblock %}
